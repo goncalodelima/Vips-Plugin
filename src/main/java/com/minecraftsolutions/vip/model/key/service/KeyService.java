@@ -7,7 +7,6 @@ import com.minecraftsolutions.vip.model.key.repository.KeyFoundationRepository;
 import com.minecraftsolutions.vip.model.key.repository.KeyRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class KeyService implements KeyFoundationService {
 

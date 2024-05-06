@@ -45,5 +45,11 @@ bukkit {
         register("changevip"){
             aliases = listOf("trocarvip")
         }
+        register("timevip"){
+            aliases = listOf("tempovip", "viptempo", "viptime", "vipstime", "vipstempo", "tempovips")
+        }
+        register ("usekey") {
+            aliases = listOf("usarkey", "usarkeys", "usakey", "usakeys", "usekeys", "key");
+        }
     }
 }

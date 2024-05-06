@@ -1,5 +1,5 @@
 database:
-  type: "mysql" #mysql ou sqlite
+  type: "sqlite" #mysql ou sqlite
   user: "root"
   password: ""
   host: "localhost"

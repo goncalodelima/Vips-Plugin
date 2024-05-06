@@ -19,13 +19,23 @@ public class KeyAdapter implements DatabaseAdapter<Key> {
 
         String name = (String) databaseQuery.get("name");
         String identifier = (String) databaseQuery.get("vip");
-        long time = (long) databaseQuery.get("time");
+        String time = (String) databaseQuery.get("time");
+
+        if (name == null)
+            throw new RuntimeException("name is null on key adapter");
 
         Vip vip = plugin.getVipService().get(identifier);
         if (vip == null)
-            throw new RuntimeException("vip is null on adapter (A key was created with a VIP that was later removed. Delete the database or remove the keys containing the removed VIP from the database and then restart the server)");
+            throw new RuntimeException("vip is null on key adapter (A key was created with a VIP that was later removed. Delete the database or remove the keys containing the removed VIP from the database and then restart the server)");
 
-        return new Key(name, vip, time);
+        long longTime;
+        try {
+            longTime = Long.parseLong(time);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new Key(name, vip, longTime);
     }
 
 }

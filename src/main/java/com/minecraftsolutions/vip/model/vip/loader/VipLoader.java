@@ -1,6 +1,5 @@
 package com.minecraftsolutions.vip.model.vip.loader;
 
-import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.vip.Vip;
 import com.minecraftsolutions.vip.model.vip.adapter.VipAdapter;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,7 +20,7 @@ public class VipLoader {
     public List<Vip> setup() {
         return configuration.getConfigurationSection("").getKeys(false)
                 .stream()
-                .map(key -> adapter.adapt(configuration))
+                .map(key -> adapter.adapt(configuration.getConfigurationSection(key)))
                 .collect(Collectors.toList());
     }
 

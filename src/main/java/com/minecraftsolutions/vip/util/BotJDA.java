@@ -5,14 +5,12 @@ import com.minecraftsolutions.vip.model.vip.Vip;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.EmbedBuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.JDA;
-import github.scarsz.discordsrv.dependencies.jda.api.JDABuilder;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
 import github.scarsz.discordsrv.dependencies.jda.api.events.ReadyEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,14 +21,12 @@ public class BotJDA extends ListenerAdapter {
     private final VipPlugin plugin;
     private final JDA jda;
 
-    public BotJDA(VipPlugin plugin) throws LoginException {
-
-        JDABuilder builder = JDABuilder.createDefault(plugin.getDiscord().getConfig().getString("token"));
-        builder.addEventListeners(this);
-        builder.setAutoReconnect(true);
-
+    public BotJDA(VipPlugin plugin) throws IllegalStateException {
         this.plugin = plugin;
-        this.jda = builder.build();
+        this.jda = DiscordSRV.getPlugin().getJda();
+        if (this.jda == null) {
+            throw new IllegalStateException("Bot token not found in DiscordSRV config.yml");
+        }
     }
 
     public void onReady(@NotNull ReadyEvent event) {
@@ -98,7 +94,7 @@ public class BotJDA extends ListenerAdapter {
 
     }
 
-    public void removeDiscordRoles(UUID uuid, List<Vip> vips) {
+    public void removeDiscordRoles(UUID uuid, Set<Vip> vips) {
 
         if (!plugin.getDiscord().getConfig().getBoolean("enable") || !plugin.getDiscord().getConfig().getBoolean("role"))
             return;

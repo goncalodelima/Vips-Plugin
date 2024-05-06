@@ -13,6 +13,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,28 +27,57 @@ public class VipCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
 
-        Optional<User> optionalUser = plugin.getUserService().get(sender.getName());
-        if (!optionalUser.isPresent()) {
-            sender.sendMessage(plugin.getMessage().getConfig().getString("error").replace("&", "§"));
-            return false;
-        }
+        if (sender instanceof Player && (args.length == 0 || !sender.hasPermission("ms-vip.admin"))) {
 
-        User user = optionalUser.get();
+            Optional<User> optionalUser = plugin.getUserService().get(sender.getName());
+            if (!optionalUser.isPresent()) {
+                sender.sendMessage(plugin.getMessage().getConfig().getString("error").replace("&", "§"));
+                return false;
+            }
 
-        if (args.length == 0 || !sender.hasPermission("ms-vip.admin")) {
+            User user = optionalUser.get();
 
-            if (user.getEnabledVip() == null && user.getVips().isEmpty()) {
+            if (user.getEnabledVip() == null && user.getTime().isEmpty()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("noVip").replace("&", "§"));
                 return true;
             } else if (user.getEnabledVip() == null) {
-                plugin.getMessage().getConfig().getStringList("noVipEnabled").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%vips%", user.getVips().toString())));
+                plugin.getMessage().getConfig().getStringList("noVipEnabled").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%vips%", user.getTime().keySet().toString())));
                 return true;
             }
 
             Vip enabledVip = user.getEnabledVip();
             long time = user.getTime().get(enabledVip);
 
-            plugin.getMessage().getConfig().getStringList("remainingTime").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%time%", TimeUtils.format(time))));
+            plugin.getMessage().getConfig().getStringList("remainingTime").forEach(string -> {
+
+                if (!string.contains("%listVips%")) {
+                    sender.sendMessage(string.replace("&", "§")
+                            .replace("%time%", TimeUtils.format(time)));
+                } else {
+                    for (Vip vip : user.getTime().keySet()) {
+                        sender.sendMessage(plugin.getMessage().getConfig().getString("listVips").replace("&", "§").replace("%vip%", vip.getName().replace("&", "§")).replace("%time%", TimeUtils.format(user.getTime().get(enabledVip))));
+                    }
+                }
+
+            });
+            return true;
+        }
+
+        if (!(sender instanceof Player) && args.length == 0) {
+            plugin.getMessage().getConfig().getStringList("help").forEach(string -> sender.sendMessage(string.replace("&", "§")));
+            return false;
+        }
+
+        if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("congelar")) {
+
+            if (plugin.isFreeze()) {
+                plugin.setFreeze(false);
+                sender.sendMessage(plugin.getMessage().getConfig().getString("unfreeze").replace("&", "§"));
+            } else {
+                plugin.setFreeze(true);
+                sender.sendMessage(plugin.getMessage().getConfig().getString("freeze").replace("&", "§"));
+            }
+
             return true;
         }
 
@@ -94,12 +124,25 @@ public class VipCommand implements CommandExecutor {
             }
 
             long maxMillis = Long.MAX_VALUE / TimeUtils.DAY.getMillis();
-            long time = days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle exception)
+            long time = days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle problems)
 
             User targetUser = optionalTarget.get();
 
-            targetUser.getTime().put(vip, time);
-            targetUser.getVips().add(vip);
+            long sum = targetUser.getTime().getOrDefault(vip, (long) 0);
+
+            long newTime;
+            if (time == Long.MAX_VALUE) {
+                newTime = Long.MAX_VALUE;
+            } else {
+                long remainingTime = Long.MAX_VALUE - sum;
+                if (remainingTime < time) {
+                    newTime = Long.MAX_VALUE;
+                } else {
+                    newTime = time + sum;
+                }
+            }
+
+            targetUser.getTime().put(vip, newTime);
             targetUser.setEnabledVip(vip);
 
             if (plugin.getJda() != null) {
@@ -117,15 +160,15 @@ public class VipCommand implements CommandExecutor {
             }
 
             if (plugin.getConfig().getBoolean("chat")) {
-                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> plugin.getMessage().getConfig().getStringList("chat").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")))));
+                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> plugin.getMessage().getConfig().getStringList("chat").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", targetPlayer.getName()).replace("%vipName%", vip.getName().replace("&", "§")))));
             }
 
             if (plugin.getConfig().getBoolean("title")) {
-                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendTitle(onlinePlayer, plugin.getMessage().getConfig().getString("title").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")), plugin.getMessage().getConfig().getString("subtitle").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")), 10, 20, 10));
+                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendTitle(onlinePlayer, plugin.getMessage().getConfig().getString("title").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", targetPlayer.getName()).replace("%vipName%", vip.getName().replace("&", "§")), plugin.getMessage().getConfig().getString("subtitle").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")), 10, 20, 10));
             }
 
             if (plugin.getConfig().getBoolean("actionBar")) {
-                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendActionBar(onlinePlayer, plugin.getMessage().getConfig().getString("actionBar").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§"))));
+                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendActionBar(onlinePlayer, plugin.getMessage().getConfig().getString("actionBar").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", targetPlayer.getName()).replace("%vipName%", vip.getName().replace("&", "§"))));
             }
 
             return true;
@@ -158,17 +201,16 @@ public class VipCommand implements CommandExecutor {
                     return false;
                 }
 
-                if (!targetUser.getVips().contains(vip)) {
+                if (!targetUser.getTime().containsKey(vip)) {
                     sender.sendMessage(plugin.getMessage().getConfig().getString("containsVip").replace("&", "§"));
                     return false;
                 }
 
-                targetUser.getTime().remove(vip);
-                targetUser.getVips().remove(vip);
-
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(user.getName()).getUniqueId(), Collections.singletonList(user.getEnabledVip()));
+                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), Collections.singleton(targetUser.getEnabledVip()));
                 }
+
+                targetUser.getTime().remove(vip);
 
                 if (targetPlayer.isOnline()) {
                     targetPlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("remove").replace("&", "§"));
@@ -178,12 +220,11 @@ public class VipCommand implements CommandExecutor {
 
             } else {
 
-                targetUser.getTime().clear();
-                targetUser.getVips().clear();
-
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(user.getName()).getUniqueId(), user.getVips());
+                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), targetUser.getTime().keySet());
                 }
+
+                targetUser.getTime().clear();
 
                 if (targetPlayer.isOnline()) {
                     targetPlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("removeAll").replace("&", "§"));
@@ -234,14 +275,14 @@ public class VipCommand implements CommandExecutor {
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("removekey") || args[0].equalsIgnoreCase("remkey") ||  args[0].equalsIgnoreCase("removerkey")) {
+        if (args[0].equalsIgnoreCase("removekey") || args[0].equalsIgnoreCase("remkey") || args[0].equalsIgnoreCase("removerkey")) {
 
-            if (args.length != 1) {
+            if (args.length != 2) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("removekeySyntax").replace("&", "§"));
                 return false;
             }
 
-            Optional<Key> optionalKey = plugin.getKeyService().get(args[0]);
+            Optional<Key> optionalKey = plugin.getKeyService().get(args[1]);
             if (!optionalKey.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidKey").replace("&", "§"));
                 return false;
@@ -264,6 +305,7 @@ public class VipCommand implements CommandExecutor {
                 }
             }
 
+            return true;
         }
 
         plugin.getMessage().getConfig().getStringList("help").forEach(string -> sender.sendMessage(string.replace("&", "§")));

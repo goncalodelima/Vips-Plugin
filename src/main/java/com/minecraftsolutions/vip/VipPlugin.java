@@ -2,6 +2,8 @@ package com.minecraftsolutions.vip;
 
 import com.minecraftsolutions.database.Database;
 import com.minecraftsolutions.vip.command.ChangeVipCommand;
+import com.minecraftsolutions.vip.command.TimeVipCommand;
+import com.minecraftsolutions.vip.command.UseKeyCommand;
 import com.minecraftsolutions.vip.command.VipCommand;
 import com.minecraftsolutions.vip.database.DatabaseProvider;
 import com.minecraftsolutions.vip.listener.PlayerListener;
@@ -16,10 +18,8 @@ import com.minecraftsolutions.vip.runnable.VipRunnable;
 import com.minecraftsolutions.vip.util.BotJDA;
 import com.minecraftsolutions.vip.util.configuration.Configuration;
 import lombok.Getter;
-import org.bukkit.Bukkit;
+import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.security.auth.login.LoginException;
 
 @Getter
 public class VipPlugin extends JavaPlugin {
@@ -40,16 +40,13 @@ public class VipPlugin extends JavaPlugin {
 
     private BotJDA jda;
 
+    @Setter
+    private boolean freeze;
+
     @Override
     public void onEnable() {
-
         setupConfigurations();
-        setupServices();
-
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginCommand("vip").setExecutor(new VipCommand(this));
-        getServer().getPluginCommand("changevip").setExecutor(new ChangeVipCommand(this));
-
+        getServer().getScheduler().runTaskLater(this, this::setupServices, 20L);
     }
 
     @Override
@@ -62,8 +59,13 @@ public class VipPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         message = new Configuration("message.yml", this);
+        message.saveFile();
+
         vip = new Configuration("vip.yml", this);
+        vip.saveFile();
+
         discord = new Configuration("discord.yml", this);
+        discord.saveFile();
 
     }
 
@@ -72,9 +74,9 @@ public class VipPlugin extends JavaPlugin {
         if (discord.getConfig().getBoolean("enable") && (discord.getConfig().getBoolean("notification") || discord.getConfig().getBoolean("role"))) {
             try {
                 jda = new BotJDA(this);
-            } catch (LoginException e) {
-                Bukkit.getLogger().warning(e.getMessage());
-                Bukkit.getPluginManager().disablePlugin(this);
+            } catch (IllegalStateException e) {
+               getServer().getPluginManager().disablePlugin(this);
+               return;
             }
         }
 
@@ -87,7 +89,13 @@ public class VipPlugin extends JavaPlugin {
 
         userService = new UserService(this, datacenter);
 
-        new VipRunnable(this).runTaskTimer(this, 900, 900);
+        new VipRunnable(this).runTaskTimer(this, 20 * 60 * 15, 20 * 60 * 15);
+
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginCommand("vip").setExecutor(new VipCommand(this));
+        getServer().getPluginCommand("changevip").setExecutor(new ChangeVipCommand(this));
+        getServer().getPluginCommand("timevip").setExecutor(new TimeVipCommand(this));
+        getServer().getPluginCommand("usekey").setExecutor(new UseKeyCommand(this));
 
     }
 

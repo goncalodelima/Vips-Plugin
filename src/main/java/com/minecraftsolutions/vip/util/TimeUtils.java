@@ -1,5 +1,7 @@
 package com.minecraftsolutions.vip.util;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Getter
 public enum TimeUtils {
 
     DAY(86400000, "days", "day", "d", "dia", "dias"),
@@ -22,14 +25,6 @@ public enum TimeUtils {
     TimeUtils(long millis, String... formats) {
         this.millis = millis;
         this.formats = Arrays.asList(formats);
-    }
-
-    public long getMillis() {
-        return millis;
-    }
-
-    public List<String> getFormats() {
-        return formats;
     }
 
     public static long unformat(String string) {

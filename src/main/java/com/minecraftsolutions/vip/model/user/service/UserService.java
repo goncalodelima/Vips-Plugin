@@ -52,7 +52,23 @@ public class UserService implements UserFoundationService {
 
     @Override
     public List<User> getVips() {
-        return userRepository.findVips();
+
+        List<User> vips = new ArrayList<>();
+        List<User> databaseVips = userRepository.findVips();
+
+        for (User user : cache.values()) {
+            if (user.getEnabledVip() != null) {
+                vips.add(user);
+            }
+        }
+
+        for (User user : databaseVips) {
+            if (!cache.containsKey(user.getName())) {
+                vips.add(user);
+            }
+        }
+
+        return vips;
     }
 
 }

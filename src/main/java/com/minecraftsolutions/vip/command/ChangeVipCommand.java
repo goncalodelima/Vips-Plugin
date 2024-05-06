@@ -1,15 +1,9 @@
 package com.minecraftsolutions.vip.command;
 
 import com.minecraftsolutions.vip.VipPlugin;
-import com.minecraftsolutions.vip.model.key.Key;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
-import com.minecraftsolutions.vip.util.BukkitUtils;
-import com.minecraftsolutions.vip.util.TimeUtils;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,7 +30,7 @@ public class ChangeVipCommand implements CommandExecutor {
         }
 
         User user = optionalUser.get();
-        if (user.getVips().isEmpty() || user.getVips().size() == 1) {
+        if (user.getTime().isEmpty() || user.getTime().size() == 1) {
             sender.sendMessage(plugin.getMessage().getConfig().getString("insufficientVipAmount").replace("&", "§"));
             return false;
         }
@@ -52,7 +46,7 @@ public class ChangeVipCommand implements CommandExecutor {
             return false;
         }
 
-        if (!user.getVips().contains(vip)) {
+        if (!user.getTime().containsKey(vip)) {
             sender.sendMessage(plugin.getMessage().getConfig().getString("personalContainsVip").replace("&", "§"));
             return false;
         }

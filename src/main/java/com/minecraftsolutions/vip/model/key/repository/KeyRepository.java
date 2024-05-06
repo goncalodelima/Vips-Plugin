@@ -18,12 +18,13 @@ public class KeyRepository implements KeyFoundationRepository {
         this.database = database;
         this.adapter = new KeyAdapter(plugin);
         this.queryAdapter = new QueryAdapter(plugin);
+        setup();
     }
     
     @Override
     public void setup() {
         database
-                .execute("CREATE TABLE IF NOT EXITS vip_key (name VARCHAR(10) PRIMARY KEY, vip TEXT NOT NULL, time LONG NOT NULL)")
+                .execute("CREATE TABLE IF NOT EXISTS vip_key (name VARCHAR(10) PRIMARY KEY, vip TEXT NOT NULL, time LONG NOT NULL)")
                 .write();
     }
 
@@ -48,7 +49,7 @@ public class KeyRepository implements KeyFoundationRepository {
     @Override
     public Key findOne(String name) {
         return database
-                .execute("SELECT * FROM vip_key WHERE name = ?")
+                .execute("SELECT * FROM vip_key WHERE name = ? COLLATE utf8mb4_bin")
                 .readOneWithAdapter(statement -> statement.set(1, name), adapter)
                 .join();
     }

@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -25,7 +24,7 @@ public class PlayerListener implements Listener {
         Optional<User> optionalUser = plugin.getUserService().get(player.getName());
 
         if (!optionalUser.isPresent()) {
-            plugin.getUserService().put(new User(player.getName(), new ArrayList<>(), null, new HashMap<>()));
+            plugin.getUserService().put(new User(player.getName(), null, new HashMap<>()));
         }
 
     }

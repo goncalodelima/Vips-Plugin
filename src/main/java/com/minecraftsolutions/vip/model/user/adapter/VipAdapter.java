@@ -11,7 +11,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class VipAdapter implements DatabaseAdapter<List<User>> {
@@ -28,12 +27,6 @@ public class VipAdapter implements DatabaseAdapter<List<User>> {
         do {
 
             String name = (String) databaseQuery.get("name");
-            String vips = (String) databaseQuery.get("vips");
-
-            List<Vip> vipList = Arrays.stream(vips.split(","))
-                    .map(identifier -> plugin.getVipService().get(identifier))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
 
             String enabledVipIdentifier = (String) databaseQuery.get("enabledVip");
             Vip enabledVip = plugin.getVipService().get(enabledVipIdentifier);
@@ -47,7 +40,7 @@ public class VipAdapter implements DatabaseAdapter<List<User>> {
                 time.put(plugin.getVipService().get((String) identifier), (Long) jsonObject.get(identifier));
             }
 
-            User user = new User(name, vipList, enabledVip, time);
+            User user = new User(name, enabledVip, time);
             users.add(user);
 
         } while (databaseQuery.next());
