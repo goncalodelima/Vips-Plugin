@@ -41,8 +41,8 @@ public class UserRepository implements UserFoundationRepository {
                 .execute("INSERT INTO vip_user VALUES(?,?,?)")
                 .write(statement -> {
                     statement.set(1, user.getName());
-                    statement.set(3, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
-                    statement.set(4, jsonObject.toJSONString());
+                    statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
+                    statement.set(3, jsonObject.toJSONString());
                 });
 
     }
