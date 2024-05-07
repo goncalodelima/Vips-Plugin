@@ -17,7 +17,7 @@ public class VipRunnable extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (plugin.isFreeze() || plugin.getUserService().getVips() == null) {
+        if (plugin.isFreeze()) {
             return;
         }
 

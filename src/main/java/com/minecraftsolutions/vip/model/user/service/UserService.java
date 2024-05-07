@@ -62,9 +62,11 @@ public class UserService implements UserFoundationService {
             }
         }
 
-        for (User user : databaseVips) {
-            if (!cache.containsKey(user.getName())) {
-                vips.add(user);
+        if (databaseVips != null) {
+            for (User user : databaseVips) {
+                if (!cache.containsKey(user.getName())) {
+                    vips.add(user);
+                }
             }
         }
 
