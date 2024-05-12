@@ -56,18 +56,8 @@ public class UserService implements UserFoundationService {
         List<User> vips = new ArrayList<>();
         List<User> databaseVips = userRepository.findVips();
 
-        for (User user : cache.values()) {
-            if (user.getEnabledVip() != null) {
-                vips.add(user);
-            }
-        }
-
         if (databaseVips != null) {
-            for (User user : databaseVips) {
-                if (!cache.containsKey(user.getName())) {
-                    vips.add(user);
-                }
-            }
+            vips.addAll(databaseVips);
         }
 
         return vips;

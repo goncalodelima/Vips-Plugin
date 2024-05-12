@@ -94,7 +94,7 @@ public class VipPlugin extends JavaPlugin {
 
         userService = new UserService(this, datacenter);
 
-        new VipRunnable(this).runTaskTimer(this, 20, 20);
+        new VipRunnable(this).runTaskTimer(this, 20 * 60 * 15, 20 * 60 * 15);
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginCommand("vip").setExecutor(new VipCommand(this));
