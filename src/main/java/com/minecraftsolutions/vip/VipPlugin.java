@@ -17,9 +17,12 @@ import com.minecraftsolutions.vip.model.vip.service.VipService;
 import com.minecraftsolutions.vip.runnable.VipRunnable;
 import com.minecraftsolutions.vip.util.BotJDA;
 import com.minecraftsolutions.vip.util.configuration.Configuration;
+import github.scarsz.discordsrv.DiscordSRV;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
 
 @Getter
 public class VipPlugin extends JavaPlugin {
@@ -73,10 +76,12 @@ public class VipPlugin extends JavaPlugin {
 
         if (discord.getConfig().getBoolean("enable") && (discord.getConfig().getBoolean("notification") || discord.getConfig().getBoolean("role"))) {
             try {
+                Class.forName("github.scarsz.discordsrv.DiscordSRV");
                 jda = new BotJDA(this);
-            } catch (IllegalStateException e) {
-               getServer().getPluginManager().disablePlugin(this);
-               return;
+            } catch (IllegalStateException | ClassNotFoundException e) {
+                getServer().getLogger().warning(e.getMessage());
+                getServer().getPluginManager().disablePlugin(this);
+                return;
             }
         }
 

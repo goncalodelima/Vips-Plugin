@@ -38,6 +38,9 @@ bukkit {
     main = "com.minecraftsolutions.vip.VipPlugin"
     depend = listOf("MinecraftSolutions")
     softDepend = listOf("DiscordSRV")
+    authors = listOf("ReeachyZ_")
+    description = "Free VIPs Plugin"
+    website = "https://minecraft-solutions.com"
     commands {
         register("vip"){
             aliases = listOf("vips")

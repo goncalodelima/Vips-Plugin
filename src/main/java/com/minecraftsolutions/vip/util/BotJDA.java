@@ -25,7 +25,7 @@ public class BotJDA extends ListenerAdapter {
         this.plugin = plugin;
         this.jda = DiscordSRV.getPlugin().getJda();
         if (this.jda == null) {
-            throw new IllegalStateException("Bot token not found in DiscordSRV config.yml");
+            throw new IllegalStateException();
         }
     }
 
