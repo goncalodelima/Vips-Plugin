@@ -5,7 +5,6 @@ import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.user.adapter.VipAdapter;
 import com.minecraftsolutions.vip.model.user.adapter.UserAdapter;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.util.List;
