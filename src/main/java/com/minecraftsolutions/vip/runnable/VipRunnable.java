@@ -31,7 +31,7 @@ public class VipRunnable extends BukkitRunnable {
                     plugin.getJda().removeDiscordRoles(offlinePlayer.getUniqueId(), Collections.singleton(user.getEnabledVip()));
                 }
 
-                user.getTime().remove(user.getEnabledVip());
+                user.getTime().put(user.getEnabledVip(), 0L);
                 user.setEnabledVip(null);
 
                 plugin.getUserService().update(user);

@@ -47,7 +47,7 @@ public class KeyService implements KeyFoundationService {
     }
 
     @Override
-    public List<Key> getAll() {
+    public Set<Key> getAll() {
         return keyRepository.findAll();
     }
 

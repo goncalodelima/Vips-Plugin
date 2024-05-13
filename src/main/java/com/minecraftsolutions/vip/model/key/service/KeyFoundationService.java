@@ -2,8 +2,8 @@ package com.minecraftsolutions.vip.model.key.service;
 
 import com.minecraftsolutions.vip.model.key.Key;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface KeyFoundationService {
 
@@ -13,6 +13,6 @@ public interface KeyFoundationService {
 
     void remove(Key key);
 
-    List<Key> getAll();
+    Set<Key> getAll();
 
 }

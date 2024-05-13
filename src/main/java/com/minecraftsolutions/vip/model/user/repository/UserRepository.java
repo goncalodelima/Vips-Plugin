@@ -3,23 +3,18 @@ package com.minecraftsolutions.vip.model.user.repository;
 import com.minecraftsolutions.database.Database;
 import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.user.User;
-import com.minecraftsolutions.vip.model.user.adapter.VipAdapter;
 import com.minecraftsolutions.vip.model.user.adapter.UserAdapter;
-import org.json.simple.parser.JSONParser;
 
-import java.util.List;
+import java.util.Set;
 
 public class UserRepository implements UserFoundationRepository {
 
     private final Database database;
     private final UserAdapter adapter;
-    private final VipAdapter vipAdapter;
 
     public UserRepository(VipPlugin plugin, Database database) {
-        JSONParser parser = new JSONParser();
         this.database = database;
-        this.adapter = new UserAdapter(plugin, parser);
-        this.vipAdapter = new VipAdapter(plugin, parser);
+        this.adapter = new UserAdapter(plugin);
         setup();
     }
 
@@ -30,14 +25,14 @@ public class UserRepository implements UserFoundationRepository {
                 .write();
 
         database
-                .execute("CREATE TABLE IF NOT EXISTS vip_time (name VARCHAR(16) REFERENCES vip_user(name), vip TEXT NOT NULL, time BIGINT, PRIMARY KEY(name, vip))")
+                .execute("CREATE TABLE IF NOT EXISTS vip_time (name VARCHAR(16) REFERENCES vip_user(name), vip VARCHAR(255) NOT NULL, time BIGINT, PRIMARY KEY(name, vip))")
                 .write();
     }
 
     @Override
     public void insert(User user) {
         database
-                .execute("INSERT INTO vip_user VALUES(?,?,?)")
+                .execute("INSERT INTO vip_user VALUES(?,?)")
                 .write(statement -> {
                     statement.set(1, user.getName());
                     statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
@@ -51,16 +46,43 @@ public class UserRepository implements UserFoundationRepository {
                 .execute("UPDATE vip_user SET enabledVip = ? WHERE name = ?")
                 .write(statement -> {
                     statement.set(1, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
-                    statement.set(3, user.getName());
+                    statement.set(2, user.getName());
                 });
 
-        user.getTime().forEach((vip, time) -> database
-                .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
-                .write(statement -> {
-                    statement.set(1, user.getName());
-                    statement.set(2, vip.getName());
-                    statement.set(3, time);
-                }));
+        if (user.getTime().isEmpty()) {
+            database
+                    .execute("DELETE FROM vip_time WHERE name = ?")
+                    .write(statement -> statement.set(1, user.getName()));
+        } else {
+
+            user.getTime().entrySet().removeIf(entry -> {
+
+                long time = entry.getValue();
+
+                if (time == 0) {
+                    database
+                            .execute("DELETE FROM vip_time WHERE name = ? AND vip = ?")
+                            .write(statement -> {
+                                statement.set(1, user.getName());
+                                statement.set(2, entry.getKey().getIdentifier());
+                            });
+
+                    return true;
+
+                } else {
+                    database
+                            .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
+                            .write(statement -> {
+                                statement.set(1, user.getName());
+                                statement.set(2, entry.getKey().getIdentifier());
+                                statement.set(3, time);
+                            });
+
+                    return false;
+                }
+            });
+
+        }
 
     }
 
@@ -70,7 +92,7 @@ public class UserRepository implements UserFoundationRepository {
                 .execute("UPDATE vip_user SET enabledVip = ? WHERE name = ?")
                 .write(statement -> {
                     statement.set(1, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
-                    statement.set(3, user.getName());
+                    statement.set(2, user.getName());
                 });
     }
 
@@ -81,7 +103,7 @@ public class UserRepository implements UserFoundationRepository {
                 .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
                 .write(statement -> {
                     statement.set(1, user.getName());
-                    statement.set(2, vip.getName());
+                    statement.set(2, vip.getIdentifier());
                     statement.set(3, time);
                 }));
 
@@ -90,17 +112,16 @@ public class UserRepository implements UserFoundationRepository {
     @Override
     public User findOne(String name) {
         return database
-                .execute("SELECT * FROM vip_user WHERE name = ?")
+                .execute("SELECT * FROM vip_user A LEFT JOIN vip_time B ON A.name = B.name WHERE A.name = ?")
                 .readOneWithAdapter(statement -> statement.set(1, name), adapter)
                 .join();
     }
 
-    public List<User> findVips() {
+    public Set<User> findVips() {
         return database
-                .execute("SELECT * FROM vip_user WHERE enabledVip IS NOT NULL")
-                .readOneWithAdapter(statement -> {}, vipAdapter)
+                .execute("SELECT A.*, B.vip, B.time FROM vip_user A LEFT JOIN vip_time B ON A.name = B.name WHERE A.enabledVip IS NOT NULL")
+                .readManyWithAdapter(adapter)
                 .join();
     }
-
 
 }

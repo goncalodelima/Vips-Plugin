@@ -22,6 +22,10 @@ public class VipService implements VipFoundationService {
     @Override
     @Nullable
     public Vip get(String identifier) {
+
+        if (identifier == null)
+            return null;
+
         return cache.get(identifier.toUpperCase());
     }
 

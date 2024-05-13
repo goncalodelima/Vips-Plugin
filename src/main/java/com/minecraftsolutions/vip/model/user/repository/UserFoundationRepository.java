@@ -3,6 +3,7 @@ package com.minecraftsolutions.vip.model.user.repository;
 import com.minecraftsolutions.vip.model.user.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserFoundationRepository {
 
@@ -18,6 +19,6 @@ public interface UserFoundationRepository {
 
     User findOne(String name);
 
-    List<User> findVips();
+    Set<User> findVips();
 
 }

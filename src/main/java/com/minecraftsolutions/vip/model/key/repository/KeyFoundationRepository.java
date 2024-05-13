@@ -2,7 +2,7 @@ package com.minecraftsolutions.vip.model.key.repository;
 
 import com.minecraftsolutions.vip.model.key.Key;
 
-import java.util.List;
+import java.util.Set;
 
 public interface KeyFoundationRepository {
 
@@ -14,6 +14,6 @@ public interface KeyFoundationRepository {
 
     Key findOne(String name);
 
-    List<Key> findAll();
+    Set<Key> findAll();
 
 }

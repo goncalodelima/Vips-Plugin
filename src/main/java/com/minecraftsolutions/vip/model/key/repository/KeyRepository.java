@@ -4,20 +4,17 @@ import com.minecraftsolutions.database.Database;
 import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.key.Key;
 import com.minecraftsolutions.vip.model.key.adapter.KeyAdapter;
-import com.minecraftsolutions.vip.model.key.adapter.QueryAdapter;
 
-import java.util.List;
+import java.util.Set;
 
 public class KeyRepository implements KeyFoundationRepository {
 
     private final Database database;
     private final KeyAdapter adapter;
-    private final QueryAdapter queryAdapter;
 
     public KeyRepository(VipPlugin plugin, Database database) {
         this.database = database;
         this.adapter = new KeyAdapter(plugin);
-        this.queryAdapter = new QueryAdapter(plugin);
         setup();
     }
     
@@ -55,10 +52,10 @@ public class KeyRepository implements KeyFoundationRepository {
     }
 
     @Override
-    public List<Key> findAll() {
+    public Set<Key> findAll() {
         return database
                 .execute("SELECT * FROM vip_key")
-                .readOneWithAdapter(statement -> {}, queryAdapter)
+                .readManyWithAdapter(statement -> {}, adapter)
                 .join();
     }
 

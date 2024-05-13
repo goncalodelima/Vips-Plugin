@@ -17,12 +17,9 @@ import com.minecraftsolutions.vip.model.vip.service.VipService;
 import com.minecraftsolutions.vip.runnable.VipRunnable;
 import com.minecraftsolutions.vip.util.BotJDA;
 import com.minecraftsolutions.vip.util.configuration.Configuration;
-import github.scarsz.discordsrv.DiscordSRV;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.HashMap;
 
 @Getter
 public class VipPlugin extends JavaPlugin {

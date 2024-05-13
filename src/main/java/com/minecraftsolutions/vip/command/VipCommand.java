@@ -16,8 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @AllArgsConstructor
 public class VipCommand implements CommandExecutor {
@@ -211,7 +211,7 @@ public class VipCommand implements CommandExecutor {
                     plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), Collections.singleton(targetUser.getEnabledVip()));
                 }
 
-                targetUser.getTime().remove(vip);
+                targetUser.getTime().put(vip, 0L);
 
                 if (targetPlayer.isOnline()) {
                     targetPlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("remove").replace("&", "§"));
@@ -296,7 +296,7 @@ public class VipCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("keylist") || args[0].equalsIgnoreCase("keyslist") || args[0].equalsIgnoreCase("listakeys") || args[0].equalsIgnoreCase("listarkeys") || args[0].equalsIgnoreCase("listarkey") || args[0].equalsIgnoreCase("listakey")) {
 
-            List<Key> keys = plugin.getKeyService().getAll();
+            Set<Key> keys = plugin.getKeyService().getAll();
 
             if (keys.isEmpty()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("emptyKeys").replace("&", "§"));
