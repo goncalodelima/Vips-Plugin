@@ -12,6 +12,10 @@ public interface UserFoundationRepository {
 
     void update(User user);
 
+    void updateVip(User user);
+
+    void updateTime(User user);
+
     User findOne(String name);
 
     List<User> findVips();

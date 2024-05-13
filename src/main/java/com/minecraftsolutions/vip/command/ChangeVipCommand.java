@@ -52,7 +52,7 @@ public class ChangeVipCommand implements CommandExecutor {
         }
 
         user.setEnabledVip(vip);
-        plugin.getUserService().update(user);
+        plugin.getUserService().updateVip(user);
         sender.sendMessage(plugin.getMessage().getConfig().getString("changeSuccess").replace("&", "§"));
         return true;
     }

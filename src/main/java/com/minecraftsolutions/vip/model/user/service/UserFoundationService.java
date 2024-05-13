@@ -13,6 +13,10 @@ public interface UserFoundationService {
 
     void update(User user);
 
+    void updateTime(User user);
+
+    void updateVip(User user);
+
     void remove(User user);
 
     List<User> getVips();

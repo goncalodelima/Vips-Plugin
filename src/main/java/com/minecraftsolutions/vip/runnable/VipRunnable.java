@@ -34,13 +34,15 @@ public class VipRunnable extends BukkitRunnable {
                 user.getTime().remove(user.getEnabledVip());
                 user.setEnabledVip(null);
 
+                plugin.getUserService().update(user);
+
                 if (offlinePlayer.isOnline()) {
                     offlinePlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("expiredVip").replace("&", "§"));
                 }
 
             } else {
                 user.getTime().put(user.getEnabledVip(), newValue);
-                plugin.getUserService().update(user);
+                plugin.getUserService().updateTime(user);
             }
         }
 

@@ -27,39 +27,64 @@ public class UserRepository implements UserFoundationRepository {
     @Override
     public void setup() {
         database
-                .execute("CREATE TABLE IF NOT EXISTS vip_user (name VARCHAR(16) PRIMARY KEY, enabledVip TEXT, time TEXT NOT NULL)")
+                .execute("CREATE TABLE IF NOT EXISTS vip_user (name VARCHAR(16) PRIMARY KEY, enabledVip TEXT)")
+                .write();
+
+        database
+                .execute("CREATE TABLE IF NOT EXISTS vip_time (name VARCHAR(16) REFERENCES vip_user(name), vip TEXT NOT NULL, time BIGINT, PRIMARY KEY(name, vip))")
                 .write();
     }
 
     @Override
     public void insert(User user) {
-
-        JSONObject jsonObject = new JSONObject();
-        user.getTime().forEach((vip, time) -> jsonObject.put(vip.getIdentifier(), time));
-
         database
                 .execute("INSERT INTO vip_user VALUES(?,?,?)")
                 .write(statement -> {
                     statement.set(1, user.getName());
                     statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
-                    statement.set(3, jsonObject.toJSONString());
                 });
-
     }
 
     @Override
     public void update(User user) {
 
-        JSONObject jsonObject = new JSONObject();
-        user.getTime().forEach((vip, time) -> jsonObject.put(vip.getIdentifier(), time));
-
         database
-                .execute("UPDATE vip_user SET enabledVip = ?, time = ? WHERE name = ?")
+                .execute("UPDATE vip_user SET enabledVip = ? WHERE name = ?")
                 .write(statement -> {
                     statement.set(1, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
-                    statement.set(2, jsonObject.toJSONString());
                     statement.set(3, user.getName());
                 });
+
+        user.getTime().forEach((vip, time) -> database
+                .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
+                .write(statement -> {
+                    statement.set(1, user.getName());
+                    statement.set(2, vip.getName());
+                    statement.set(3, time);
+                }));
+
+    }
+
+    @Override
+    public void updateVip(User user) {
+        database
+                .execute("UPDATE vip_user SET enabledVip = ? WHERE name = ?")
+                .write(statement -> {
+                    statement.set(1, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
+                    statement.set(3, user.getName());
+                });
+    }
+
+    @Override
+    public void updateTime(User user) {
+
+        user.getTime().forEach((vip, time) -> database
+                .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
+                .write(statement -> {
+                    statement.set(1, user.getName());
+                    statement.set(2, vip.getName());
+                    statement.set(3, time);
+                }));
 
     }
 

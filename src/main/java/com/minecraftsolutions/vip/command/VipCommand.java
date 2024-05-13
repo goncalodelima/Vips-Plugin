@@ -145,13 +145,14 @@ public class VipCommand implements CommandExecutor {
             targetUser.getTime().put(vip, newTime);
             targetUser.setEnabledVip(vip);
 
+            plugin.getUserService().update(targetUser);
+
             if (plugin.getJda() != null) {
                 plugin.getJda().addDiscordRole(targetPlayer.getUniqueId(), vip);
                 plugin.getJda().sendMessage(targetPlayer.getName(), vip);
             }
 
             vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier())));
-            plugin.getUserService().update(targetUser);
 
             sender.sendMessage(plugin.getMessage().getConfig().getString("successGive").replace("&", "§").replace("%targetName%", targetPlayer.getName()));
 

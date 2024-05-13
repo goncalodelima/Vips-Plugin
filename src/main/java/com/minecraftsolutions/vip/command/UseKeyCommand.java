@@ -71,13 +71,15 @@ public class UseKeyCommand implements CommandExecutor {
         user.getTime().put(vip, newTime);
         user.setEnabledVip(vip);
 
+        plugin.getUserService().update(user);
+
         if (plugin.getJda() != null) {
             plugin.getJda().addDiscordRole(player.getUniqueId(), vip);
             plugin.getJda().sendMessage(user.getName(), vip);
         }
 
         vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier())));
-        plugin.getUserService().update(user);
+
         player.sendMessage(plugin.getMessage().getConfig().getString("usedKey").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")));
 
         if (plugin.getConfig().getBoolean("chat")) {

@@ -46,6 +46,16 @@ public class UserService implements UserFoundationService {
     }
 
     @Override
+    public void updateVip(User user) {
+        userRepository.updateVip(user);
+    }
+
+    @Override
+    public void updateTime(User user) {
+        userRepository.updateTime(user);
+    }
+
+    @Override
     public void remove(User user) {
         cache.remove(user.getName());
     }
