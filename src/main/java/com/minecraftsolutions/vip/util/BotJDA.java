@@ -77,6 +77,7 @@ public class BotJDA extends ListenerAdapter {
             return;
 
         Guild guild = jda.getGuildById(plugin.getDiscord().getConfig().getString("guildId"));
+
         if (guild == null)
             return;
 

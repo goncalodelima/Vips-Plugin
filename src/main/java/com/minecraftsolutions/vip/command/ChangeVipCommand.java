@@ -4,9 +4,11 @@ import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
 import lombok.AllArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Optional;
 
@@ -16,7 +18,11 @@ public class ChangeVipCommand implements CommandExecutor {
     private final VipPlugin plugin;
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
+
+        if (!(sender instanceof Player)) {
+            return false;
+        }
 
         Optional<User> optionalUser = plugin.getUserService().get(sender.getName());
         if (!optionalUser.isPresent()) {
@@ -53,6 +59,9 @@ public class ChangeVipCommand implements CommandExecutor {
 
         user.setEnabledVip(vip);
         plugin.getUserService().updateVip(user);
+
+        vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", sender.getName())));
+
         sender.sendMessage(plugin.getMessage().getConfig().getString("changeSuccess").replace("&", "§"));
         return true;
     }

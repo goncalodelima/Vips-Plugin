@@ -5,6 +5,7 @@ import com.minecraftsolutions.vip.model.user.User;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collections;
@@ -22,6 +23,7 @@ public class VipRunnable extends BukkitRunnable {
         }
 
         for (User user : plugin.getUserService().getVips()) {
+
             long newValue = user.getTime().getOrDefault(user.getEnabledVip(), 0L) - 900000;
             if (newValue <= 0) {
 
@@ -41,8 +43,20 @@ public class VipRunnable extends BukkitRunnable {
                 }
 
             } else {
+
                 user.getTime().put(user.getEnabledVip(), newValue);
                 plugin.getUserService().updateTime(user);
+
+                if (plugin.getJda() != null) {
+
+                    Player player = Bukkit.getPlayer(user.getName());
+
+                    if (player != null) {
+                        plugin.getJda().addDiscordRole(player.getUniqueId(), user.getEnabledVip());
+                    }
+
+                }
+
             }
         }
 

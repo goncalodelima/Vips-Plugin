@@ -152,7 +152,7 @@ public class VipCommand implements CommandExecutor {
                 plugin.getJda().sendMessage(targetPlayer.getName(), vip);
             }
 
-            vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier())));
+            vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
 
             sender.sendMessage(plugin.getMessage().getConfig().getString("successGive").replace("&", "§").replace("%targetName%", targetPlayer.getName()));
 
@@ -195,6 +195,7 @@ public class VipCommand implements CommandExecutor {
             String identifier = args[1];
 
             if (!identifier.equalsIgnoreCase("clear")) {
+
                 Vip vip = plugin.getVipService().get(identifier);
 
                 if (vip == null) {

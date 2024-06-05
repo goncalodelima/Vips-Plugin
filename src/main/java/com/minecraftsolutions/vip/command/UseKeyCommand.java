@@ -23,8 +23,9 @@ public class UseKeyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
 
-        if (!(sender instanceof Player))
+        if (!(sender instanceof Player)) {
             return false;
+        }
 
         if (args.length == 0) {
             sender.sendMessage(plugin.getMessage().getConfig().getString("usekeySyntax").replace("&", "§"));
@@ -78,7 +79,7 @@ public class UseKeyCommand implements CommandExecutor {
             plugin.getJda().sendMessage(user.getName(), vip);
         }
 
-        vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier())));
+        vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", player.getName())));
 
         player.sendMessage(plugin.getMessage().getConfig().getString("usedKey").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")));
 

@@ -68,7 +68,6 @@ public class UserRepository implements UserFoundationRepository {
                             });
 
                     return true;
-
                 } else {
                     database
                             .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
@@ -98,7 +97,6 @@ public class UserRepository implements UserFoundationRepository {
 
     @Override
     public void updateTime(User user) {
-
         user.getTime().forEach((vip, time) -> database
                 .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
                 .write(statement -> {
@@ -106,7 +104,6 @@ public class UserRepository implements UserFoundationRepository {
                     statement.set(2, vip.getIdentifier());
                     statement.set(3, time);
                 }));
-
     }
 
     @Override
