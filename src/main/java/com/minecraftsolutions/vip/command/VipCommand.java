@@ -142,6 +142,8 @@ public class VipCommand implements CommandExecutor {
                 }
             }
 
+            Vip enabledVip = targetUser.getEnabledVip();
+
             targetUser.getTime().put(vip, newTime);
             targetUser.setEnabledVip(vip);
 
@@ -152,7 +154,11 @@ public class VipCommand implements CommandExecutor {
                 plugin.getJda().sendMessage(targetPlayer.getName(), vip);
             }
 
-            vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
+            if (enabledVip != null) {
+                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+            }
+
+            vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
 
             sender.sendMessage(plugin.getMessage().getConfig().getString("successGive").replace("&", "§").replace("%targetName%", targetPlayer.getName()));
 
@@ -236,8 +242,15 @@ public class VipCommand implements CommandExecutor {
 
             }
 
+            Vip enabledVip = targetUser.getEnabledVip();
+
             targetUser.setEnabledVip(null);
             plugin.getUserService().update(targetUser);
+
+            if (enabledVip != null) {
+                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+            }
+
             return true;
         }
 

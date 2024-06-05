@@ -2,6 +2,7 @@ package com.minecraftsolutions.vip.runnable;
 
 import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.user.User;
+import com.minecraftsolutions.vip.model.vip.Vip;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -24,19 +25,28 @@ public class VipRunnable extends BukkitRunnable {
 
         for (User user : plugin.getUserService().getVips()) {
 
-            long newValue = user.getTime().getOrDefault(user.getEnabledVip(), 0L) - 900000;
+            Vip enabledVip = user.getEnabledVip();
+
+            if (enabledVip == null) {
+                return;
+            }
+
+            long newValue = user.getTime().getOrDefault(enabledVip, 0L) - 900000;
+
             if (newValue <= 0) {
 
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getName());
 
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(offlinePlayer.getUniqueId(), Collections.singleton(user.getEnabledVip()));
+                    plugin.getJda().removeDiscordRoles(offlinePlayer.getUniqueId(), Collections.singleton(enabledVip));
                 }
 
-                user.getTime().put(user.getEnabledVip(), 0L);
+                user.getTime().put(enabledVip, 0L);
                 user.setEnabledVip(null);
 
                 plugin.getUserService().update(user);
+
+                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", user.getName())));
 
                 if (offlinePlayer.isOnline()) {
                     offlinePlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("expiredVip").replace("&", "§"));
@@ -44,7 +54,7 @@ public class VipRunnable extends BukkitRunnable {
 
             } else {
 
-                user.getTime().put(user.getEnabledVip(), newValue);
+                user.getTime().put(enabledVip, newValue);
                 plugin.getUserService().updateTime(user);
 
                 if (plugin.getJda() != null) {
@@ -52,7 +62,7 @@ public class VipRunnable extends BukkitRunnable {
                     Player player = Bukkit.getPlayer(user.getName());
 
                     if (player != null) {
-                        plugin.getJda().addDiscordRole(player.getUniqueId(), user.getEnabledVip());
+                        plugin.getJda().addDiscordRole(player.getUniqueId(), enabledVip);
                     }
 
                 }

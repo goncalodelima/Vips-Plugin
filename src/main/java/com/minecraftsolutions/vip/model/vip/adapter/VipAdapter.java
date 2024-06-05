@@ -8,7 +8,7 @@ public class VipAdapter implements ConfigurationAdapter<Vip> {
 
     @Override
     public Vip adapt(ConfigurationSection section) {
-        return new Vip(section.getString("identifier").toUpperCase(), section.getString("name"), section.getString("color"), section.getStringList("commands"), section.getString("roleId"));
+        return new Vip(section.getString("identifier").toUpperCase(), section.getString("name"), section.getString("color"), section.getStringList("setCommands"), section.getStringList("removeCommands"), section.getString("roleId"));
     }
 
 }

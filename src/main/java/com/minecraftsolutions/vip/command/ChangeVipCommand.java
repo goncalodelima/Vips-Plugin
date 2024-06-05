@@ -57,10 +57,16 @@ public class ChangeVipCommand implements CommandExecutor {
             return false;
         }
 
+        Vip enabledVip = user.getEnabledVip();
+
         user.setEnabledVip(vip);
         plugin.getUserService().updateVip(user);
 
-        vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", sender.getName())));
+        if (enabledVip != null) {
+            enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+        }
+
+        vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", sender.getName())));
 
         sender.sendMessage(plugin.getMessage().getConfig().getString("changeSuccess").replace("&", "§"));
         return true;

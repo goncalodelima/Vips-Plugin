@@ -12,7 +12,8 @@ public class Vip {
     private String identifier;
     private String name;
     private String color;
-    private List<String> commands;
+    private List<String> setCommands;
+    private List<String> removeCommands;
     private String roleId;
 
 }

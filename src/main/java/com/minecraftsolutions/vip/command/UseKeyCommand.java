@@ -68,6 +68,8 @@ public class UseKeyCommand implements CommandExecutor {
             }
         }
 
+        Vip enabledVip = user.getEnabledVip();
+
         plugin.getKeyService().remove(key);
         user.getTime().put(vip, newTime);
         user.setEnabledVip(vip);
@@ -79,7 +81,11 @@ public class UseKeyCommand implements CommandExecutor {
             plugin.getJda().sendMessage(user.getName(), vip);
         }
 
-        vip.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", player.getName())));
+        if (enabledVip != null) {
+            enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+        }
+
+        vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", player.getName())));
 
         player.sendMessage(plugin.getMessage().getConfig().getString("usedKey").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")));
 
