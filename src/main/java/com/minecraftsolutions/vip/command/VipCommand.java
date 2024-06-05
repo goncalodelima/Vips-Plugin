@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class VipCommand implements CommandExecutor {
@@ -41,7 +42,7 @@ public class VipCommand implements CommandExecutor {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("noVip").replace("&", "§"));
                 return true;
             } else if (user.getEnabledVip() == null) {
-                plugin.getMessage().getConfig().getStringList("noVipEnabled").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%vips%", user.getTime().keySet().toString())));
+                plugin.getMessage().getConfig().getStringList("noVipEnabled").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%vips%", user.getTime().keySet().stream().map(vip -> vip.getName().replace("&", "§")).collect(Collectors.toList()).toString())));
                 return true;
             }
 

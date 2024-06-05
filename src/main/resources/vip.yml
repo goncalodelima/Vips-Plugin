@@ -3,16 +3,16 @@
   identifier: "vip" #identifier necessário para dar o VIP ao digitar /vip give <identifier> <playerName> <days>
   name: "&a&lVIP"
   roleId: "1098984997161017375" #para adicionar o cargo VIP no discord
-  commands: #lista de comandos ao setar vip
+  setCommands: #lista de comandos ao setar vip
     - "group set %identifier% %targetName%"
-  commands1: #lista de comandos ao remover vip
+  removeCommands: #lista de comandos ao remover vip
     - "group unset %identifier% %targetName%"
 2:
   color: "&a" #variável %color% utilizada em message.yml
   identifier: "vip+" #identifier necessário para dar o VIP ao digitar /vip give <identifier> <playerName> <days>
   name: "&a&lVIP&b&l+"
   roleId: "1098984997161017376" #para adicionar o cargo VIP no discord
-  commands: #lista de comandos ao setar vip
+  setCommands: #lista de comandos ao setar vip
     - "group set %identifier% %targetName%"
-  commands1: #lista de comandos ao remover vip
+  removeCommands: #lista de comandos ao remover vip
     - "group unset %identifier% %targetName%"
