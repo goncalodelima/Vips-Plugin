@@ -1,12 +1,12 @@
 database:
-  type: "sqlite" #mysql ou sqlite
+  type: "sqlite" #mysql
   user: "root"
   password: ""
   host: "localhost"
   database: "test"
   file: "plugins/MinecraftSolutions/vip.db"
 
-onlineGive: true #true -> o jogador precisa estar online para receber VIP; false -> o jogador não precisa estar online para receber VIP
-chat: true #true -> mensagem no chat para todos os jogadores quando alguém ativa VIP
-title: true #true -> title para todos os jogadores quando alguém ativa VIP
-actionBar: true #true -> actionBar para todos os jogadores quando alguém ativa VIP
+onlineGive: true #true -> player needs to be online to receive VIP; false -> player does not need to be online to receive VIP
+chat: true #true -> message in chat for all players when someone activates VIP
+title: true #true -> title for all players when someone activates VIP
+actionBar: true #true -> actionBar for all players when someone activates VIP

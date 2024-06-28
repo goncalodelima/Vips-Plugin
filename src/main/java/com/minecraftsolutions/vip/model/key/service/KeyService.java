@@ -20,8 +20,8 @@ public class KeyService implements KeyFoundationService {
 
     @Override
     public void put(Key key) {
-        cache.put(key.getName(), key);
         keyRepository.insert(key);
+        cache.put(key.getName(), key);
     }
 
     @Override

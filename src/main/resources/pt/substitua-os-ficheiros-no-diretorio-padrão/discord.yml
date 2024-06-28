@@ -1,0 +1,19 @@
+enable: false #true para dar cargo de VIP e sistema de notificação. false para desativar os dois sistemas. É preciso  ter o DiscordSRV
+notification: true #false para desativar o sistema de notificação. Caso esta opção esteja true, é preciso 'enable' estar true
+role: true #false para desativar o sistema de dar cargos. Caso esta opção esteja true, é preciso 'enable' estar true
+guildId: "GUILDID" #id da guild que o bot está (coloque o token do bot na config.yml do DiscordSRV)
+channelId: "CHANNELID" #id do canal da notificação
+
+embed:
+  author: "VIP ATIVADO"
+  authorUrl: "https://cravatar.eu/helmhead/%playerName%"
+  footer: "Ativação de VIP - %date%"
+  url: "https://minotar.net/avatar/%playerName%/512"
+  description: |
+    Esse é um sistema de notificações automáticas de compra de VIPs. Adquira produtos no nosso [site](https://minecraft-solutions.com).
+    
+    > O Jogador `%playerName%` tornou-se %identifierUpperCase%.
+  color:
+    red: 0
+    green: 200
+    blue: 67

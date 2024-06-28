@@ -20,8 +20,8 @@ public class UserService implements UserFoundationService {
 
     @Override
     public void put(User user) {
-        cache.put(user.getName(), user);
         userRepository.insert(user);
+        cache.put(user.getName(), user);
     }
 
     @Override

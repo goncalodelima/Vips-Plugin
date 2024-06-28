@@ -15,10 +15,10 @@ import com.minecraftsolutions.vip.model.vip.loader.VipLoader;
 import com.minecraftsolutions.vip.model.vip.service.VipFoundationService;
 import com.minecraftsolutions.vip.model.vip.service.VipService;
 import com.minecraftsolutions.vip.runnable.VipRunnable;
-import com.minecraftsolutions.vip.util.BotJDA;
+import com.minecraftsolutions.vip.util.jda.DiscordIntegration;
 import com.minecraftsolutions.vip.util.configuration.Configuration;
 import lombok.Getter;
-import lombok.Setter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -38,9 +38,8 @@ public class VipPlugin extends JavaPlugin {
 
     private UserFoundationService userService;
 
-    private BotJDA jda;
+    private DiscordIntegration jda;
 
-    @Setter
     private boolean freeze;
 
     @Override
@@ -74,13 +73,15 @@ public class VipPlugin extends JavaPlugin {
         if (discord.getConfig().getBoolean("enable") && (discord.getConfig().getBoolean("notification") || discord.getConfig().getBoolean("role"))) {
             try {
                 Class.forName("github.scarsz.discordsrv.DiscordSRV");
-                jda = new BotJDA(this);
+                jda = new DiscordIntegration(this);
             } catch (IllegalStateException | ClassNotFoundException e) {
                 getServer().getLogger().warning(e.getMessage());
                 getServer().getPluginManager().disablePlugin(this);
                 return;
             }
         }
+
+        new Metrics(this, 22436);
 
         datacenter = new DatabaseProvider().setup(this);
 
@@ -91,6 +92,7 @@ public class VipPlugin extends JavaPlugin {
 
         userService = new UserService(this, datacenter);
 
+        freeze = getConfig().getBoolean("freeze");
         new VipRunnable(this).runTaskTimer(this, 20 * 60 * 15, 20 * 60 * 15);
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
@@ -99,6 +101,12 @@ public class VipPlugin extends JavaPlugin {
         getServer().getPluginCommand("timevip").setExecutor(new TimeVipCommand(this));
         getServer().getPluginCommand("usekey").setExecutor(new UseKeyCommand(this));
 
+    }
+
+    public void setFreeze(boolean freeze) {
+        getConfig().set("freeze", freeze);
+        saveConfig();
+        this.freeze = freeze;
     }
 
 }

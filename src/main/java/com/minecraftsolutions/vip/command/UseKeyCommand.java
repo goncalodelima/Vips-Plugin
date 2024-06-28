@@ -1,10 +1,11 @@
 package com.minecraftsolutions.vip.command;
 
+import com.cryptomorin.xseries.messages.ActionBar;
+import com.cryptomorin.xseries.messages.Titles;
 import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.key.Key;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
-import com.minecraftsolutions.vip.util.BukkitUtils;
 import com.minecraftsolutions.vip.util.TimeUtils;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
@@ -77,7 +78,7 @@ public class UseKeyCommand implements CommandExecutor {
         plugin.getUserService().update(user);
 
         if (plugin.getJda() != null) {
-            plugin.getJda().addDiscordRole(player.getUniqueId(), vip);
+            plugin.getJda().addDiscordRole(player, vip);
             plugin.getJda().sendMessage(user.getName(), vip);
         }
 
@@ -90,15 +91,15 @@ public class UseKeyCommand implements CommandExecutor {
         player.sendMessage(plugin.getMessage().getConfig().getString("usedKey").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")));
 
         if (plugin.getConfig().getBoolean("chat")) {
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> plugin.getMessage().getConfig().getStringList("chat").forEach(string -> sender.sendMessage(string.replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§")))));
+            plugin.getMessage().getConfig().getStringList("chat").forEach(string -> Bukkit.broadcastMessage(string.replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§"))));
         }
 
         if (plugin.getConfig().getBoolean("title")) {
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendTitle(onlinePlayer, plugin.getMessage().getConfig().getString("title").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§")), plugin.getMessage().getConfig().getString("subtitle").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")), 10, 20, 10));
+            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> Titles.sendTitle(onlinePlayer, 10, 20, 10, plugin.getMessage().getConfig().getString("title").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§")), plugin.getMessage().getConfig().getString("subtitle").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§"))));
         }
 
         if (plugin.getConfig().getBoolean("actionBar")) {
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> BukkitUtils.sendActionBar(onlinePlayer, plugin.getMessage().getConfig().getString("actionBar").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§"))));
+            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> ActionBar.sendActionBar(onlinePlayer, plugin.getMessage().getConfig().getString("actionBar").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%targetName%", player.getName()).replace("%vipName%", vip.getName().replace("&", "§"))));
         }
 
         return true;

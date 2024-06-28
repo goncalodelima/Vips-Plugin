@@ -60,6 +60,7 @@ public class UserRepository implements UserFoundationRepository {
                 long time = entry.getValue();
 
                 if (time == 0) {
+
                     database
                             .execute("DELETE FROM vip_time WHERE name = ? AND vip = ?")
                             .write(statement -> {
@@ -69,6 +70,7 @@ public class UserRepository implements UserFoundationRepository {
 
                     return true;
                 } else {
+
                     database
                             .execute("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
                             .write(statement -> {

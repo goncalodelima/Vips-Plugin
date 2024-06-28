@@ -1,0 +1,12 @@
+database:
+  type: "mysql"
+  user: "root"
+  password: ""
+  host: "localhost"
+  database: "test"
+  file: "plugins/MinecraftSolutions/vip.db"
+
+onlineGive: true #true -> o jogador precisa estar online para receber VIP; false -> o jogador não precisa estar online para receber VIP
+chat: true #true -> mensagem no chat para todos os jogadores quando alguém ativa VIP
+title: true #true -> title para todos os jogadores quando alguém ativa VIP
+actionBar: true #true -> actionBar para todos os jogadores quando alguém ativa VIP

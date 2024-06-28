@@ -1,4 +1,4 @@
-package com.minecraftsolutions.vip.util;
+package com.minecraftsolutions.vip.util.jda;
 
 import com.minecraftsolutions.vip.VipPlugin;
 import com.minecraftsolutions.vip.model.vip.Vip;
@@ -9,6 +9,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
 import github.scarsz.discordsrv.dependencies.jda.api.events.ReadyEvent;
 import github.scarsz.discordsrv.dependencies.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -16,12 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
-public class BotJDA extends ListenerAdapter {
+public class DiscordIntegration extends ListenerAdapter {
 
     private final VipPlugin plugin;
     private final JDA jda;
 
-    public BotJDA(VipPlugin plugin) throws IllegalStateException {
+    public DiscordIntegration(VipPlugin plugin) throws IllegalStateException {
         this.plugin = plugin;
         this.jda = DiscordSRV.getPlugin().getJda();
         if (this.jda == null) {
@@ -67,11 +68,12 @@ public class BotJDA extends ListenerAdapter {
         embed.setFooter(plugin.getDiscord().getConfig().getString("embed.footer").replace("%date%", dateFormat.format(date)));
         embed.setColor(new Color(plugin.getDiscord().getConfig().getInt("embed.color.red"), plugin.getDiscord().getConfig().getInt("embed.color.green"), plugin.getDiscord().getConfig().getInt("embed.color.blue")));
 
-        textChannel.sendMessageEmbeds(embed.build()).queue(message -> {});
+        textChannel.sendMessageEmbeds(embed.build()).queue(message -> {
+        });
 
     }
 
-    public void addDiscordRole(UUID uuid, Vip vip) {
+    public void addDiscordRole(OfflinePlayer offlinePlayer, Vip vip) {
 
         if (!plugin.getDiscord().getConfig().getBoolean("enable") || !plugin.getDiscord().getConfig().getBoolean("role"))
             return;
@@ -85,10 +87,16 @@ public class BotJDA extends ListenerAdapter {
 
         if (role != null) {
 
-            String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(uuid);
+            String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(offlinePlayer.getUniqueId());
 
-            if (discordId == null)
+            if (discordId == null) {
+
+                if (offlinePlayer.getPlayer() != null) {
+                    offlinePlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("noDiscordId").replace("&", "§"));
+                }
+
                 return;
+            }
 
             guild.addRoleToMember(discordId, role).queue();
         }
@@ -101,6 +109,7 @@ public class BotJDA extends ListenerAdapter {
             return;
 
         Guild guild = jda.getGuildById(plugin.getDiscord().getConfig().getString("guildId"));
+
         if (guild == null)
             return;
 

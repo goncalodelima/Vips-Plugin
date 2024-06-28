@@ -62,7 +62,7 @@ public class VipRunnable extends BukkitRunnable {
                     Player player = Bukkit.getPlayer(user.getName());
 
                     if (player != null) {
-                        plugin.getJda().addDiscordRole(player.getUniqueId(), enabledVip);
+                        plugin.getJda().addDiscordRole(player, enabledVip);
                     }
 
                 }
