@@ -120,20 +120,22 @@ public class VipCommand implements CommandExecutor {
                 return false;
             }
 
-            if (days <= 0) {
+            if (days <= 0 && days != -1) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidNumber").replace("&", "§"));
                 return false;
             }
 
             long maxMillis = Long.MAX_VALUE / TimeUtils.DAY.getMillis();
-            long time = days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle problems)
+            long time = days == -1 ? -1 : days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle problems)
 
             User targetUser = optionalTarget.get();
 
             long sum = targetUser.getTime().getOrDefault(vip, (long) 0);
 
             long newTime;
-            if (time == Long.MAX_VALUE) {
+            if (time == -1) {
+                newTime = -1;
+            } else if (time == Long.MAX_VALUE) {
                 newTime = Long.MAX_VALUE;
             } else {
                 long remainingTime = Long.MAX_VALUE - sum;

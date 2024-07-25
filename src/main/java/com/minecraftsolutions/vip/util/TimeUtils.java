@@ -46,6 +46,9 @@ public enum TimeUtils {
     }
 
     public static String format(long value) {
+
+        if (value == -1) return "Permanente";
+
         if (value <= 0) return "Em instantes";
 
         long days = TimeUnit.MILLISECONDS.toDays(value);

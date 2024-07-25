@@ -53,14 +53,16 @@ public class UseKeyCommand implements CommandExecutor {
 
         long days = (key.getTime() / 1000 / 86400);
         long maxMillis = Long.MAX_VALUE / TimeUtils.DAY.getMillis();
-        long time = days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle problems)
-
         long sum = user.getTime().getOrDefault(vip, (long) 0);
+        long time = sum == -1 ? -1 : days > maxMillis ? Long.MAX_VALUE : TimeUtils.DAY.getMillis() * days; //check if TimeUtils.DAY.getMillis() * days > Long.MAX_VALUE (handle problems)
 
         long newTime;
-        if (time == Long.MAX_VALUE) {
+
+        if (time == -1) {
+            newTime = -1;
+        } else if (time == Long.MAX_VALUE) {
             newTime = Long.MAX_VALUE;
-        } else {
+        }else {
             long remainingTime = Long.MAX_VALUE - sum;
             if (remainingTime < time) {
                 newTime = Long.MAX_VALUE;

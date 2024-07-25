@@ -27,7 +27,7 @@ public class VipRunnable extends BukkitRunnable {
 
             Vip enabledVip = user.getEnabledVip();
 
-            if (enabledVip == null) {
+            if (enabledVip == null || user.getTime().getOrDefault(enabledVip, 0L) == -1) {
                 return;
             }
 
