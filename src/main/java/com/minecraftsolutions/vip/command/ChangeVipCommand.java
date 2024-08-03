@@ -1,6 +1,7 @@
 package com.minecraftsolutions.vip.command;
 
 import com.minecraftsolutions.vip.VipPlugin;
+import com.minecraftsolutions.vip.events.PlayerVipChangedEvent;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
 import lombok.AllArgsConstructor;
@@ -67,6 +68,8 @@ public class ChangeVipCommand implements CommandExecutor {
         }
 
         vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", sender.getName())));
+
+        Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent((Player) sender, vip));
 
         sender.sendMessage(plugin.getMessage().getConfig().getString("changeSuccess").replace("&", "§"));
         return true;

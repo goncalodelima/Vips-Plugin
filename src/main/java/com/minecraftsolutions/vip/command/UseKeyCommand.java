@@ -3,6 +3,7 @@ package com.minecraftsolutions.vip.command;
 import com.cryptomorin.xseries.messages.ActionBar;
 import com.cryptomorin.xseries.messages.Titles;
 import com.minecraftsolutions.vip.VipPlugin;
+import com.minecraftsolutions.vip.events.PlayerVipChangedEvent;
 import com.minecraftsolutions.vip.model.key.Key;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
@@ -89,6 +90,8 @@ public class UseKeyCommand implements CommandExecutor {
         }
 
         vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", player.getName())));
+
+        Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(player, vip));
 
         player.sendMessage(plugin.getMessage().getConfig().getString("usedKey").replace("&", "§").replace("%color%", vip.getColor().replace("&", "§")).replace("%vipName%", vip.getName().replace("&", "§")));
 

@@ -1,6 +1,7 @@
 package com.minecraftsolutions.vip.runnable;
 
 import com.minecraftsolutions.vip.VipPlugin;
+import com.minecraftsolutions.vip.events.PlayerVipChangedEvent;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,8 @@ public class VipRunnable extends BukkitRunnable {
                 plugin.getUserService().update(user);
 
                 enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", user.getName())));
+
+                Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(offlinePlayer, null));
 
                 if (offlinePlayer.isOnline()) {
                     offlinePlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("expiredVip").replace("&", "§"));

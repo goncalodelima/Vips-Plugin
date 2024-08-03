@@ -3,6 +3,7 @@ package com.minecraftsolutions.vip.command;
 import com.cryptomorin.xseries.messages.ActionBar;
 import com.cryptomorin.xseries.messages.Titles;
 import com.minecraftsolutions.vip.VipPlugin;
+import com.minecraftsolutions.vip.events.PlayerVipChangedEvent;
 import com.minecraftsolutions.vip.model.key.Key;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
@@ -164,6 +165,8 @@ public class VipCommand implements CommandExecutor {
 
             vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
 
+            Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(targetPlayer, vip));
+
             sender.sendMessage(plugin.getMessage().getConfig().getString("successGive").replace("&", "§").replace("%targetName%", targetPlayer.getName()));
 
             if (targetPlayer.isOnline()) {
@@ -254,6 +257,8 @@ public class VipCommand implements CommandExecutor {
             if (enabledVip != null) {
                 enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
             }
+
+            Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(targetPlayer, null));
 
             return true;
         }

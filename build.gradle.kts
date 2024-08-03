@@ -21,7 +21,6 @@ dependencies {
     compileOnly("org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("me.devnatan:inventory-framework-platform-bukkit:3.0.8")
     compileOnly("org.jetbrains:annotations:23.0.0")
     compileOnly("me.clip:placeholderapi:2.11.3")
