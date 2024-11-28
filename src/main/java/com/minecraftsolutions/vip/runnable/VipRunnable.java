@@ -58,7 +58,7 @@ public class VipRunnable extends BukkitRunnable {
             } else {
 
                 user.getTime().put(enabledVip, newValue);
-                plugin.getUserService().updateTime(user);
+                plugin.getUserService().update(user);
 
                 if (plugin.getJda() != null) {
 

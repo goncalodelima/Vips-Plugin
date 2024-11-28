@@ -61,7 +61,7 @@ public class ChangeVipCommand implements CommandExecutor {
         Vip enabledVip = user.getEnabledVip();
 
         user.setEnabledVip(vip);
-        plugin.getUserService().updateVip(user);
+        plugin.getUserService().update(user);
 
         if (enabledVip != null) {
             enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));

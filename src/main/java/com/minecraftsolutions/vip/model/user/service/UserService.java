@@ -7,78 +7,70 @@ import com.minecraftsolutions.vip.model.user.repository.UserFoundationRepository
 import com.minecraftsolutions.vip.model.user.repository.UserRepository;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class UserService implements UserFoundationService {
 
     private final UserFoundationRepository userRepository;
     private final Map<String, User> cache;
+    private final Set<User> pendingUpdates;
 
     public UserService(VipPlugin plugin, Database database) {
-        this.userRepository = new UserRepository(plugin, database);
+
+        this.userRepository = new UserRepository(plugin.getVipService(), database, plugin.getAsyncExecutor(), plugin.getLogger());
         this.cache = new HashMap<>();
+        this.pendingUpdates = new HashSet<>();
+
+        for (User user : userRepository.findVips()) {
+            put(user);
+        }
+
+    }
+
+    @Override
+    public Set<User> getPendingUpdates() {
+        return pendingUpdates;
     }
 
     @Override
     public void put(User user) {
-        userRepository.insert(user);
         cache.put(user.getName(), user);
     }
 
     @Override
+    public void putData(User user) {
+        userRepository.insert(user);
+    }
+
+    @Override
     public Optional<User> get(String name) {
-
         User user = cache.get(name);
-
-        if (user != null)
-            return Optional.of(user);
-
-        user = userRepository.findOne(name);
-
-        if (user != null)
-            this.cache.put(user.getName(), user);
-
         return Optional.ofNullable(user);
     }
 
     @Override
+    public Optional<User> getData(String nickname) {
+        return userRepository.findOne(nickname);
+    }
+
+    @Override
     public void update(User user) {
-        userRepository.update(user);
+        pendingUpdates.add(user);
     }
 
     @Override
-    public void updateVip(User user) {
-        userRepository.updateVip(user);
+    public CompletableFuture<Void> update(Collection<User> users) {
+        return userRepository.update(users);
     }
 
     @Override
-    public void updateTime(User user) {
-        userRepository.updateTime(user);
+    public void remove(String nickname) {
+        cache.remove(nickname);
     }
 
     @Override
-    public void remove(User user) {
-        cache.remove(user.getName());
-    }
-
-    @Override
-    public List<User> getVips() {
-
-        List<User> vips = new ArrayList<>();
-        Set<User> databaseVips = userRepository.findVips();
-
-        for (User user : cache.values()) {
-            if (user.getEnabledVip() != null) {
-                vips.add(user);
-            }
-        }
-
-        for (User user : databaseVips) {
-            if (!cache.containsKey(user.getName())) {
-                vips.add(user);
-            }
-        }
-
-        return vips;
+    public Collection<User> getVips() {
+        return cache.values();
     }
 
 }

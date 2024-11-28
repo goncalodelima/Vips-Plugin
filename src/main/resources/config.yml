@@ -4,6 +4,7 @@ database:
   password: ""
   host: "localhost"
   database: "test"
+  port: 3306
   file: "plugins/MinecraftSolutions/vip.db"
 
 onlineGive: true #true -> player needs to be online to receive VIP; false -> player does not need to be online to receive VIP

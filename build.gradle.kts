@@ -15,6 +15,8 @@ repositories {
 
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.aikar.co/content/groups/aikar/")
 }
 
 dependencies {
@@ -23,7 +25,6 @@ dependencies {
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     compileOnly("me.devnatan:inventory-framework-platform-bukkit:3.0.8")
     compileOnly("org.jetbrains:annotations:23.0.0")
-    compileOnly("me.clip:placeholderapi:2.11.3")
     implementation("com.github.cryptomorin:XSeries:11.2.0")
     implementation("org.bstats:bstats-bukkit:3.0.2")
 

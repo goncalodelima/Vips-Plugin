@@ -42,7 +42,7 @@ public class TimeVipCommand implements CommandExecutor {
         }
 
         Vip enabledVip = user.getEnabledVip();
-        long time = user.getTime().get(enabledVip);
+        long time = user.getTime().getOrDefault(enabledVip, 0L);
 
         plugin.getMessage().getConfig().getStringList("remainingTime").forEach(string -> {
 
@@ -50,7 +50,7 @@ public class TimeVipCommand implements CommandExecutor {
                 sender.sendMessage(string.replace("&", "§").replace("%time%", TimeUtils.format(time)));
             } else {
                 for (Vip vip : user.getTime().keySet()) {
-                    sender.sendMessage(plugin.getMessage().getConfig().getString("listVips").replace("&", "§").replace("%vip%", vip.getName().replace("&", "§")).replace("%time%", TimeUtils.format(user.getTime().get(vip))));
+                    sender.sendMessage(plugin.getMessage().getConfig().getString("listVips").replace("&", "§").replace("%vip%", vip.getName().replace("&", "§")).replace("%time%", TimeUtils.format(user.getTime().getOrDefault(vip, 0L))));
                 }
             }
 

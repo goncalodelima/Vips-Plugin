@@ -2,8 +2,10 @@ package com.minecraftsolutions.vip.model.user.repository;
 
 import com.minecraftsolutions.vip.model.user.User;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public interface UserFoundationRepository {
 
@@ -11,13 +13,11 @@ public interface UserFoundationRepository {
 
     void insert(User user);
 
-    void update(User user);
+    CompletableFuture<Boolean> update(User user);
 
-    void updateVip(User user);
+    CompletableFuture<Void> update(Collection<User> users);
 
-    void updateTime(User user);
-
-    User findOne(String name);
+    Optional<User> findOne(String name);
 
     Set<User> findVips();
 

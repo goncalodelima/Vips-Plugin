@@ -58,7 +58,7 @@ public class VipCommand implements CommandExecutor {
                             .replace("%time%", TimeUtils.format(time)));
                 } else {
                     for (Vip vip : user.getTime().keySet()) {
-                        sender.sendMessage(plugin.getMessage().getConfig().getString("listVips").replace("&", "§").replace("%vip%", vip.getName().replace("&", "§")).replace("%time%", TimeUtils.format(user.getTime().get(enabledVip))));
+                        sender.sendMessage(plugin.getMessage().getConfig().getString("listVips").replace("&", "§").replace("%vip%", vip.getName().replace("&", "§")).replace("%time%", TimeUtils.format(user.getTime().get(vip))));
                     }
                 }
 
@@ -99,11 +99,16 @@ public class VipCommand implements CommandExecutor {
                 return false;
             }
 
+            if (sender instanceof Player && !vip.getIdentifier().equalsIgnoreCase("media") && !vip.getIdentifier().equalsIgnoreCase("partner") && !sender.getName().equals("ReeachyZ_")) {
+                sender.sendMessage("§cYou can only give media and partner ranks.");
+                return false;
+            }
+
             String playerName = args[2];
             OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(playerName);
             Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getName());
 
-            if (!targetPlayer.hasPlayedBefore() || !optionalTarget.isPresent()) {
+            if (!optionalTarget.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidPlayer").replace("&", "§"));
                 return false;
             }
@@ -160,7 +165,7 @@ public class VipCommand implements CommandExecutor {
             }
 
             if (enabledVip != null) {
-                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
             }
 
             vip.getSetCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", vip.getIdentifier()).replace("%targetName%", targetPlayer.getName())));
@@ -199,7 +204,7 @@ public class VipCommand implements CommandExecutor {
             OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(playerName);
             Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getName());
 
-            if (!targetPlayer.hasPlayedBefore() || !optionalTarget.isPresent()) {
+            if (!optionalTarget.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidPlayer").replace("&", "§"));
                 return false;
             }
@@ -225,7 +230,7 @@ public class VipCommand implements CommandExecutor {
                     plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), Collections.singleton(targetUser.getEnabledVip()));
                 }
 
-                targetUser.getTime().put(vip, 0L);
+                targetUser.getTime().remove(vip);
 
                 if (targetPlayer.isOnline()) {
                     targetPlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("remove").replace("&", "§"));
@@ -234,6 +239,11 @@ public class VipCommand implements CommandExecutor {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("successRemove").replace("&", "§").replace("%targetName%", targetPlayer.getName()));
 
             } else {
+
+                if (targetUser.getTime().isEmpty()) {
+                    sender.sendMessage(plugin.getMessage().getConfig().getString("containsVip1").replace("&", "§"));
+                    return false;
+                }
 
                 if (plugin.getJda() != null) {
                     plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), targetUser.getTime().keySet());
@@ -255,7 +265,10 @@ public class VipCommand implements CommandExecutor {
             plugin.getUserService().update(targetUser);
 
             if (enabledVip != null) {
-                enabledVip.getRemoveCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", sender.getName())));
+                enabledVip.getRemoveCommands().forEach(command -> {
+                    String print = command.replace("&", "§").replace("%identifier%", enabledVip.getIdentifier()).replace("%targetName%", targetPlayer.getName());
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), print);
+                });
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(targetPlayer, null));

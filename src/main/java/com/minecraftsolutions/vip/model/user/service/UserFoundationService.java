@@ -2,23 +2,27 @@ package com.minecraftsolutions.vip.model.user.service;
 
 import com.minecraftsolutions.vip.model.user.User;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public interface UserFoundationService {
 
+    Set<User> getPendingUpdates();
+
     void put(User user);
+
+    void putData(User user);
 
     Optional<User> get(String name);
 
+    Optional<User> getData(String name);
+
     void update(User user);
 
-    void updateTime(User user);
+    CompletableFuture<Void> update(Collection<User> users);
 
-    void updateVip(User user);
+    void remove(String nickname);
 
-    void remove(User user);
-
-    List<User> getVips();
+    Collection<User> getVips();
 
 }
