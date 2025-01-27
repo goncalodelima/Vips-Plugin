@@ -5,6 +5,7 @@ import com.minecraftsolutions.database.executor.DatabaseQuery;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.vip.Vip;
 import com.minecraftsolutions.vip.model.vip.service.VipFoundationService;
+import com.minecraftsolutions.vip.util.UUIDConverter;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -21,12 +22,13 @@ public class UserAdapter implements DatabaseAdapter<User> {
     @Override
     public User adapt(DatabaseQuery databaseQuery) {
 
+        UUID uuid = UUIDConverter.convert((byte[]) databaseQuery.get("uuid"));
         String name = (String) databaseQuery.get("name");
         String enabledVipIdentifier = (String) databaseQuery.get("enabledVip");
 
         User user = vipMap.computeIfAbsent(name, string -> {
             Vip enabledVip = enabledVipIdentifier == null ? null : vipService.get(enabledVipIdentifier);
-            return new User(string, enabledVip, new HashMap<>());
+            return new User(uuid, string, enabledVip, new HashMap<>());
         });
 
         if (databaseQuery.get("vip") != null && databaseQuery.get("time") != null) {

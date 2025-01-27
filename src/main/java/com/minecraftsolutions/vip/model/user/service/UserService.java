@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public class UserService implements UserFoundationService {
 
     private final UserFoundationRepository userRepository;
-    private final Map<String, User> cache;
+    private final Map<UUID, User> cache;
     private final Set<User> pendingUpdates;
 
     public UserService(VipPlugin plugin, Database database) {
@@ -34,7 +34,7 @@ public class UserService implements UserFoundationService {
 
     @Override
     public void put(User user) {
-        cache.put(user.getName(), user);
+        cache.put(user.getUuid(), user);
     }
 
     @Override
@@ -43,14 +43,14 @@ public class UserService implements UserFoundationService {
     }
 
     @Override
-    public Optional<User> get(String name) {
-        User user = cache.get(name);
+    public Optional<User> get(UUID uuid) {
+        User user = cache.get(uuid);
         return Optional.ofNullable(user);
     }
 
     @Override
-    public Optional<User> getData(String nickname) {
-        return userRepository.findOne(nickname);
+    public Optional<User> getData(UUID uuid) {
+        return userRepository.findOne(uuid);
     }
 
     @Override
@@ -64,8 +64,8 @@ public class UserService implements UserFoundationService {
     }
 
     @Override
-    public void remove(String nickname) {
-        cache.remove(nickname);
+    public void remove(UUID uuid) {
+        cache.remove(uuid);
     }
 
     @Override

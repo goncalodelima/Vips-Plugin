@@ -32,7 +32,7 @@ public class VipCommand implements CommandExecutor {
 
         if (sender instanceof Player && (args.length == 0 || !sender.hasPermission("ms-vip.admin"))) {
 
-            Optional<User> optionalUser = plugin.getUserService().get(sender.getName());
+            Optional<User> optionalUser = plugin.getUserService().get(((Player) sender).getUniqueId());
             if (!optionalUser.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("error").replace("&", "§"));
                 return false;
@@ -106,7 +106,7 @@ public class VipCommand implements CommandExecutor {
 
             String playerName = args[2];
             OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(playerName);
-            Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getName());
+            Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getUniqueId());
 
             if (!optionalTarget.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidPlayer").replace("&", "§"));
@@ -202,7 +202,7 @@ public class VipCommand implements CommandExecutor {
 
             String playerName = args[2];
             OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(playerName);
-            Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getName());
+            Optional<User> optionalTarget = plugin.getUserService().get(targetPlayer.getUniqueId());
 
             if (!optionalTarget.isPresent()) {
                 sender.sendMessage(plugin.getMessage().getConfig().getString("invalidPlayer").replace("&", "§"));
@@ -227,7 +227,7 @@ public class VipCommand implements CommandExecutor {
                 }
 
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), Collections.singleton(targetUser.getEnabledVip()));
+                    plugin.getJda().removeDiscordRoles(targetUser.getUuid(), Collections.singleton(targetUser.getEnabledVip()));
                 }
 
                 targetUser.getTime().remove(vip);
@@ -246,7 +246,7 @@ public class VipCommand implements CommandExecutor {
                 }
 
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(Bukkit.getOfflinePlayer(targetUser.getName()).getUniqueId(), targetUser.getTime().keySet());
+                    plugin.getJda().removeDiscordRoles(targetUser.getUuid(), targetUser.getTime().keySet());
                 }
 
                 targetUser.getTime().clear();

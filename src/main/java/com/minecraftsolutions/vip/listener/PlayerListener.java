@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
 @AllArgsConstructor
 public class PlayerListener implements Listener {
@@ -18,12 +19,23 @@ public class PlayerListener implements Listener {
     @EventHandler
     private void onPlayerJoin(PlayerJoinEvent event) {
 
+        UUID uuid = event.getPlayer().getUniqueId();
+
         String nickname = event.getPlayer().getName();
-        Optional<User> optionalUser = plugin.getUserService().get(nickname);
+        Optional<User> optionalUser = plugin.getUserService().get(uuid);
 
         if (!optionalUser.isPresent()) {
-            User user = new User(nickname, null, new HashMap<>());
+            User user = new User(uuid, nickname, null, new HashMap<>());
             plugin.getUserService().put(user);
+        } else {
+
+            User user = optionalUser.get();
+
+            if (!user.getName().equals(nickname)) {
+                user.setName(nickname);
+                plugin.getUserService().update(user);
+            }
+
         }
 
     }

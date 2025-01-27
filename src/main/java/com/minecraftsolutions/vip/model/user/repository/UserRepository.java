@@ -5,6 +5,7 @@ import com.minecraftsolutions.database.executor.DatabaseExecutor;
 import com.minecraftsolutions.vip.model.user.User;
 import com.minecraftsolutions.vip.model.user.adapter.UserAdapter;
 import com.minecraftsolutions.vip.model.vip.service.VipFoundationService;
+import com.minecraftsolutions.vip.util.UUIDConverter;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -32,11 +33,11 @@ public class UserRepository implements UserFoundationRepository {
     public void setup() {
         try (DatabaseExecutor executor = database.execute()) {
             executor
-                    .query("CREATE TABLE IF NOT EXISTS vip_user (name VARCHAR(16) PRIMARY KEY, enabledVip TEXT)")
+                    .query("CREATE TABLE IF NOT EXISTS vip_user (uuid BINARY(16) PRIMARY KEY, name VARCHAR(16), enabledVip TEXT)")
                     .write();
 
             executor
-                    .query("CREATE TABLE IF NOT EXISTS vip_time (name VARCHAR(16) REFERENCES vip_user(name), vip VARCHAR(255) NOT NULL, time BIGINT, PRIMARY KEY(name, vip))")
+                    .query("CREATE TABLE IF NOT EXISTS vip_time (uuid BINARY(16) REFERENCES vip_user(uuid), vip VARCHAR(255) NOT NULL, time BIGINT, PRIMARY KEY(uuid, vip))")
                     .write();
         }
     }
@@ -45,10 +46,11 @@ public class UserRepository implements UserFoundationRepository {
     public void insert(User user) {
         try (DatabaseExecutor executor = database.execute()) {
             executor
-                    .query("INSERT INTO vip_user VALUES(?,?)")
+                    .query("INSERT INTO vip_user VALUES(?,?,?)")
                     .write(statement -> {
-                        statement.set(1, user.getName());
-                        statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
+                        statement.set(1, UUIDConverter.convert(user.getUuid()));
+                        statement.set(2, user.getName());
+                        statement.set(3, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
                     });
         }
     }
@@ -58,15 +60,16 @@ public class UserRepository implements UserFoundationRepository {
         return CompletableFuture.runAsync(() -> {
             try (DatabaseExecutor executor = database.execute()) {
 
-                executor.query("INSERT INTO vip_user (name, enabledVip) VALUES (?, ?) ON DUPLICATE KEY UPDATE enabledVip = VALUES(enabledVip)")
+                executor.query("INSERT INTO vip_user (uuid, name, enabledVip) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), enabledVip = VALUES(enabledVip)")
                         .batch(users, (user, statement) -> {
-                            statement.set(1, user.getName());
-                            statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
+                            statement.set(1, UUIDConverter.convert(user.getUuid()));
+                            statement.set(2, user.getName());
+                            statement.set(3, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
                         });
 
-                Map<String, Map<String, Long>> userTimeMap = users.stream()
+                Map<UUID, Map<String, Long>> userTimeMap = users.stream()
                         .collect(Collectors.toMap(
-                                User::getName,
+                                User::getUuid,
                                 user -> user.getTime().entrySet().stream()
                                         .collect(Collectors.toMap(
                                                 entry -> entry.getKey().getIdentifier(),
@@ -79,7 +82,7 @@ public class UserRepository implements UserFoundationRepository {
                                 }
                         ));
 
-                executor.query("INSERT INTO vip_time (name, vip, time) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
+                executor.query("INSERT INTO vip_time (uuid, vip, time) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
                         .batch(
                                 userTimeMap.entrySet().stream()
                                         .flatMap(entry -> entry.getValue().entrySet().stream()
@@ -89,13 +92,13 @@ public class UserRepository implements UserFoundationRepository {
                                                         vipEntry.getValue()
                                                 })
                                         ).collect(Collectors.toList()), (params, statement) -> {
-                                    statement.set(1, params[0]);
+                                    statement.set(1, UUIDConverter.convert((UUID) params[0]));
                                     statement.set(2, params[1]);
                                     statement.set(3, params[2]);
                                 }
                         );
 
-                Map<String, Set<String>> userVipToDelete = userTimeMap.entrySet().stream()
+                Map<UUID, Set<String>> userVipToDelete = userTimeMap.entrySet().stream()
                         .filter(entry -> entry.getValue().values().stream().anyMatch(time -> time == 0))
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
@@ -105,7 +108,7 @@ public class UserRepository implements UserFoundationRepository {
                                         .collect(Collectors.toSet())
                         ));
 
-                executor.query("DELETE FROM vip_time WHERE name = ? AND vip = ?")
+                executor.query("DELETE FROM vip_time WHERE uuid = ? AND vip = ?")
                         .batch(
                                 userVipToDelete.entrySet().stream()
                                         .flatMap(entry -> entry.getValue().stream()
@@ -114,7 +117,7 @@ public class UserRepository implements UserFoundationRepository {
                                                         vip
                                                 })
                                         ).collect(Collectors.toList()), (params, statement) -> {
-                                    statement.set(1, params[0]);
+                                    statement.set(1, UUIDConverter.convert((UUID) params[0]));
                                     statement.set(2, params[1]);
                                 }
                         );
@@ -134,7 +137,7 @@ public class UserRepository implements UserFoundationRepository {
             try (DatabaseExecutor executor = database.execute()) {
 
                 executor
-                        .query("INSERT INTO vip_user (name, enabledVip) VALUES (?, ?) ON DUPLICATE KEY UPDATE enabledVip = VALUES(enabledVip)")
+                        .query("INSERT INTO vip_user (uuid, name, enabledVip) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), enabledVip = VALUES(enabledVip)")
                         .write(statement -> {
                             statement.set(1, user.getName());
                             statement.set(2, user.getEnabledVip() == null ? null : user.getEnabledVip().getIdentifier());
@@ -142,8 +145,8 @@ public class UserRepository implements UserFoundationRepository {
 
                 if (user.getTime().isEmpty()) {
                     executor
-                            .query("DELETE FROM vip_time WHERE name = ?")
-                            .write(statement -> statement.set(1, user.getName()));
+                            .query("DELETE FROM vip_time WHERE uuid = ?")
+                            .write(statement -> statement.set(1, user.getUuid()));
                 } else {
 
                     user.getTime().entrySet().removeIf(entry -> {
@@ -153,9 +156,9 @@ public class UserRepository implements UserFoundationRepository {
                         if (time == 0) {
 
                             executor
-                                    .query("DELETE FROM vip_time WHERE name = ? AND vip = ?")
+                                    .query("DELETE FROM vip_time WHERE uuid = ? AND vip = ?")
                                     .write(statement -> {
-                                        statement.set(1, user.getName());
+                                        statement.set(1, UUIDConverter.convert(user.getUuid()));
                                         statement.set(2, entry.getKey().getIdentifier());
                                     });
 
@@ -163,9 +166,9 @@ public class UserRepository implements UserFoundationRepository {
                         } else {
 
                             executor
-                                    .query("INSERT INTO vip_time (name, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
+                                    .query("INSERT INTO vip_time (uuid, vip, time) VALUES(?,?,?) ON DUPLICATE KEY UPDATE time = VALUES(time)")
                                     .write(statement -> {
-                                        statement.set(1, user.getName());
+                                        statement.set(1, UUIDConverter.convert(user.getUuid()));
                                         statement.set(2, entry.getKey().getIdentifier());
                                         statement.set(3, time);
                                     });
@@ -186,18 +189,18 @@ public class UserRepository implements UserFoundationRepository {
     }
 
     @Override
-    public Optional<User> findOne(String name) {
+    public Optional<User> findOne(UUID uuid) {
         try (DatabaseExecutor executor = database.execute()) {
             return executor
-                    .query("SELECT * FROM vip_user A LEFT JOIN vip_time B ON A.name = B.name WHERE A.name = ?")
-                    .readOne(statement -> statement.set(1, name), adapter);
+                    .query("SELECT * FROM vip_user A LEFT JOIN vip_time B ON A.uuid = B.uuid WHERE A.uuid = ?")
+                    .readOne(statement -> statement.set(1, UUIDConverter.convert(uuid)), adapter);
         }
     }
 
     public Set<User> findVips() {
         try (DatabaseExecutor executor = database.execute()) {
             return executor
-                    .query("SELECT A.*, B.vip, B.time FROM vip_user A LEFT JOIN vip_time B ON A.name = B.name")
+                    .query("SELECT A.uuid, A.name, A.enabledVip, B.vip, B.time FROM vip_user A LEFT JOIN vip_time B ON A.uuid = B.uuid")
                     .readMany(adapter, HashSet::new);
         }
     }

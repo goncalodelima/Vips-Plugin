@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("net.luckperms:api:5.4")
     compileOnly("org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
@@ -27,6 +28,7 @@ dependencies {
     compileOnly("org.jetbrains:annotations:23.0.0")
     implementation("com.github.cryptomorin:XSeries:11.2.0")
     implementation("org.bstats:bstats-bukkit:3.0.2")
+    implementation("org.json:json:20210307")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
@@ -51,7 +53,7 @@ bukkit {
     name = "ms-vip"
     version = "${project.version}"
     main = "com.minecraftsolutions.vip.VipPlugin"
-    depend = listOf("MinecraftSolutions")
+    depend = listOf("MinecraftSolutions", "LuckPerms")
     softDepend = listOf("DiscordSRV")
     authors = listOf("ReeachyZ_")
     description = "Free VIPs Plugin"

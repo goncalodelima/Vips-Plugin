@@ -22,7 +22,10 @@ import com.minecraftsolutions.vip.runnable.VipRunnable;
 import com.minecraftsolutions.vip.util.jda.DiscordIntegration;
 import com.minecraftsolutions.vip.util.configuration.Configuration;
 import lombok.Getter;
+import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Set;
@@ -52,6 +55,8 @@ public class VipPlugin extends JavaPlugin {
     private DiscordIntegration jda;
 
     private boolean freeze;
+
+    private LuckPerms luckPerms;
 
     @Override
     public void onEnable() {
@@ -108,6 +113,15 @@ public class VipPlugin extends JavaPlugin {
     }
 
     private void setupServices() {
+
+        RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+
+        if (provider == null) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        luckPerms = provider.getProvider();
 
         if (discord.getConfig().getBoolean("enable") && (discord.getConfig().getBoolean("notification") || discord.getConfig().getBoolean("role"))) {
             try {

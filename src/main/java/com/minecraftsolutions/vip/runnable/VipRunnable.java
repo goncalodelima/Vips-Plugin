@@ -36,10 +36,10 @@ public class VipRunnable extends BukkitRunnable {
 
             if (newValue <= 0) {
 
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getName());
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getUuid());
 
                 if (plugin.getJda() != null) {
-                    plugin.getJda().removeDiscordRoles(offlinePlayer.getUniqueId(), Collections.singleton(enabledVip));
+                    plugin.getJda().removeDiscordRoles(user.getUuid(), Collections.singleton(enabledVip));
                 }
 
                 user.getTime().put(enabledVip, 0L);
@@ -51,8 +51,10 @@ public class VipRunnable extends BukkitRunnable {
 
                 Bukkit.getPluginManager().callEvent(new PlayerVipChangedEvent(offlinePlayer, null));
 
-                if (offlinePlayer.isOnline()) {
-                    offlinePlayer.getPlayer().sendMessage(plugin.getMessage().getConfig().getString("expiredVip").replace("&", "§"));
+                Player player = offlinePlayer.getPlayer();
+
+                if (player != null) {
+                    player.sendMessage(plugin.getMessage().getConfig().getString("expiredVip").replace("&", "§"));
                 }
 
             } else {
@@ -62,7 +64,7 @@ public class VipRunnable extends BukkitRunnable {
 
                 if (plugin.getJda() != null) {
 
-                    Player player = Bukkit.getPlayer(user.getName());
+                    Player player = Bukkit.getPlayer(user.getUuid());
 
                     if (player != null) {
                         plugin.getJda().addDiscordRole(player, enabledVip);

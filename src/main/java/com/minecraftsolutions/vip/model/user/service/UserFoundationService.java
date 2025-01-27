@@ -13,15 +13,15 @@ public interface UserFoundationService {
 
     void putData(User user);
 
-    Optional<User> get(String name);
+    Optional<User> get(UUID uuid);
 
-    Optional<User> getData(String name);
+    Optional<User> getData(UUID uuid);
 
     void update(User user);
 
     CompletableFuture<Void> update(Collection<User> users);
 
-    void remove(String nickname);
+    void remove(UUID uuid);
 
     Collection<User> getVips();
 

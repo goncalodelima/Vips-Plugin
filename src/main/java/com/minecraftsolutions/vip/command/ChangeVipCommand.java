@@ -25,7 +25,7 @@ public class ChangeVipCommand implements CommandExecutor {
             return false;
         }
 
-        Optional<User> optionalUser = plugin.getUserService().get(sender.getName());
+        Optional<User> optionalUser = plugin.getUserService().get(((Player) sender).getUniqueId());
         if (!optionalUser.isPresent()) {
             sender.sendMessage(plugin.getMessage().getConfig().getString("error").replace("&", "§"));
             return false;
